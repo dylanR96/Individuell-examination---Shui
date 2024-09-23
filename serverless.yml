@@ -11,31 +11,45 @@ provider:
   region: eu-north-1
   iam:
     role:
-  httpApi:
-    cors: true
+      statements:
+        - Effect: "Allow"
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "*"
 
 functions:
   getMessages:
-    handler: functions/getMessages.handler
+    handler: functions/GetMessages.handler
     events:
       - httpApi:
           path: "/message"
           method: GET
+  getMessage:
+    handler: functions/GetMessage.handler
+    events:
+      - httpApi:
+          path: "/message/{username}"
+          method: GET
   editMessage:
-    handler: functions/editMessage.handler
+    handler: functions/EditMessage.handler
     events:
       - httpApi:
           path: "/message"
           method: PUT
   addMessage:
-    handler: functions/addMessage.handler
+    handler: functions/AddMessage.handler
     events:
       - httpApi:
           path: "/message"
           method: POST
 resources:
   Resources:
-    eventsDb:
+    messageBoardDb:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: MessageBoard
