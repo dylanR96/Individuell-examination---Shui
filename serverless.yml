@@ -8,11 +8,41 @@ service: shui
 provider:
   name: aws
   runtime: nodejs20.x
+  region: eu-north-1
+  iam:
+    role:
+  httpApi:
+    cors: true
 
 functions:
-  hello:
-    handler: handler.hello
+  getMessages:
+    handler: functions/getMessages.handler
     events:
       - httpApi:
-          path: /
-          method: get
+          path: "/message"
+          method: GET
+  editMessage:
+    handler: functions/editMessage.handler
+    events:
+      - httpApi:
+          path: "/message"
+          method: PUT
+  addMessage:
+    handler: functions/addMessage.handler
+    events:
+      - httpApi:
+          path: "/message"
+          method: POST
+resources:
+  Resources:
+    eventsDb:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Event
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
