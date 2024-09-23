@@ -38,7 +38,7 @@ resources:
     eventsDb:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: Event
+        TableName: MessageBoard
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
