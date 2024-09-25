@@ -1,25 +1,42 @@
+import { QueryCommand } from "@aws-sdk/client-dynamodb";
 import {db} from "../dynamoDb"
-import { ScanCommand } from "@aws-sdk/lib-dynamodb"
-import { APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
-export const handler = async (): Promise<APIGatewayProxyResult> => {
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+
+  const username = event.pathParameters ? event.pathParameters.username : null;
+  if(!username) {
+    const response = {
+      statusCode: 400,
+      body: JSON.stringify({ message: "Username is required." })
+    }
+    return response;
+  }
   try {
-    const result = await db.send(new ScanCommand({
+    const result = await db.send(new QueryCommand({
       TableName: "MessageBoard",
+      KeyConditionExpression: "#username = :usernameValue",
+      ExpressionAttributeNames: {
+        "#username": "username",
+      },
+      ExpressionAttributeValues: {
+        ":usernameValue": {S: username},
+      },
     }))
 
     const items = result.Items ?? [];
     
-    if(items.length === 0) {
+    if(!items || items.length === 0) {
       const response = {
-        statusCode: 200,
-        body: JSON.stringify({ message: "There are no current messages" })
+        statusCode: 404,
+        body: JSON.stringify({ message: "User does not exist or has no current messages." })
       }
       return response;
   } else {
+    const userMessages = items.map(item => item.text.SS)
     const response = {
       statusCode: 200,
-      body: JSON.stringify({ message: items})
+      body: JSON.stringify({ message: userMessages})
     }
     return response
   }
