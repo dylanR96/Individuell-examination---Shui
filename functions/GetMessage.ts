@@ -43,7 +43,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           };
         });
       }
-      return []; // Return empty array if no valid message structure
+      return [];
     });
     const response = {
       statusCode: 200,
