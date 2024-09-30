@@ -12,7 +12,7 @@ export const handler = async (): Promise<APIGatewayProxyResult> => {
     
     if(items.length === 0) {
       const response = {
-        statusCode: 200,
+        statusCode: 404,
         body: JSON.stringify({ message: "There are no current messages" })
       }
       return response;

@@ -33,7 +33,18 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
       return response;
   } else {
-    const userMessages = items.map(item => item.text.SS)
+    const userMessages = items.flatMap(item => {
+      if (item.text && item.text.M) {
+        return Object.entries(item.text.M).map(([uniqueId, message]) => {
+          return {
+            id: uniqueId,
+            Message: message.M.Message.S, 
+            CreatedAt: message.M.CreatedAt.S
+          };
+        });
+      }
+      return []; // Return empty array if no valid message structure
+    });
     const response = {
       statusCode: 200,
       body: JSON.stringify({ message: userMessages})

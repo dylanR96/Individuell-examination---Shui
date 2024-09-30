@@ -18,7 +18,7 @@ type NewMessages = Record<string, Message>
 
 function getCurrentTime(): string {
   const currentDate: Date = new Date();
-  const currentDateGMTplus2 = formatInTimeZone(currentDate, 'Europe/Stockholm', "dd-MM-yyyy HH:mm")
+  const currentDateGMTplus2 = formatInTimeZone(currentDate, 'Europe/Stockholm', "MM/dd/yyyy HH:mm")
 
   return currentDateGMTplus2;
 }
