@@ -1,20 +1,11 @@
 import {db} from "../dynamoDb"
 import { APIGatewayProxyResult } from 'aws-lambda';
-import { formatInTimeZone  } from 'date-fns-tz'
 import { QueryCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 import {z} from "zod";
 import { EditMessageSchema } from "../middleware/EditMessageSchema";
 
-function getCurrentTime(): string {
-  const currentDate: Date = new Date();
-  const currentDateGMTplus2 = formatInTimeZone(currentDate, 'Europe/Stockholm', "dd-MM-yyyy HH:mm")
-
-  return currentDateGMTplus2;
-}
-
 export const handler = async (event: APIGatewayProxyResult): Promise<APIGatewayProxyResult> => {
- 
-  const modifiedAt: string = getCurrentTime();
+
 
   try {
     const {username, messages } = EditMessageSchema.parse(JSON.parse(event.body))
@@ -47,7 +38,7 @@ export const handler = async (event: APIGatewayProxyResult): Promise<APIGatewayP
         return {
           statusCode: 404,
           body: JSON.stringify({
-            message: `Message ID ${uniqueId} does not exist.`
+            message: `Message ID ${uniqueId} does not exist for current user.`
           })
         };
       }
@@ -58,14 +49,12 @@ export const handler = async (event: APIGatewayProxyResult): Promise<APIGatewayP
         return {
           statusCode: 500,
           body: JSON.stringify({
-            message: `Internal error: Message object for ID ${uniqueId} is malformed.`
+            message: `Internal error: No text available for ID ${uniqueId}.`
           })
         };
       }
 
       existingMessages[uniqueId].M.Message = { S: newTexts[0]}
-      existingMessages[uniqueId].M.modifiedAt = {S: modifiedAt}
-      delete existingMessages[uniqueId].M.CreatedAt
     }
 
 
